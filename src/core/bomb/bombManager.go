@@ -1,11 +1,15 @@
 package bomb
 
 import (
-	"fmt"
 	player "super-bomberman4/src/core/player"
 	scenario "super-bomberman4/src/core/scenario"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
+)
+
+const (
+	BombWidthSize  = 16
+	BombHeightSize = 16
 )
 
 type BombManager struct {
@@ -13,12 +17,11 @@ type BombManager struct {
 	Bombs                  []*Bomb
 	Explosions             []*Explosion
 	MaximumSimultaneosBomb int
-	BombsAlives            int
 }
 
 func NewBombManager(p *player.Player) *BombManager {
 	InitBombs()
-	return &BombManager{Player: p, BombsAlives: 0, MaximumSimultaneosBomb: 5}
+	return &BombManager{Player: p, MaximumSimultaneosBomb: 5}
 }
 
 // faz a adição da bomba no bomb manager para ser redenrizada assim que possivel
@@ -27,7 +30,7 @@ func (bm *BombManager) spawnBomb() {
 		return
 	}
 
-	if bm.BombsAlives < bm.MaximumSimultaneosBomb {
+	if len(bm.Bombs) < bm.MaximumSimultaneosBomb {
 		bombSpawn := calculateBombSpawn(*bm.Player)
 
 		bomb := NewBomb(bm.Player.PlayerFirePower, 0, bombSpawn)
@@ -35,8 +38,6 @@ func (bm *BombManager) spawnBomb() {
 		go bomb.CalculateExplosion()
 
 		bm.Bombs = append(bm.Bombs, bomb)
-
-		bm.BombsAlives++
 	}
 
 	bm.Player.BombsSummoned = 0
@@ -55,7 +56,7 @@ func (bm *BombManager) drawSingleBomb(bomb *Bomb) {
 	if bomb.IsAlive {
 		rl.DrawTexturePro(
 			bomb.texture,
-			rl.NewRectangle(float32(16*bomb.BombFrame)+float32(bomb.BombFrame), 0, 16, 16),
+			rl.NewRectangle(float32(BombWidthSize*bomb.BombFrame)+float32(bomb.BombFrame), 0, BombWidthSize, BombHeightSize),
 			rl.NewRectangle(float32(bomb.PosX), float32(bomb.PosY), scenario.SCNEARIO_QUADRANT_WIDTH, scenario.SCNEARIO_QUADRANT_HEIGHT),
 			rl.NewVector2(0, 0),
 			0,
@@ -66,10 +67,8 @@ func (bm *BombManager) drawSingleBomb(bomb *Bomb) {
 	} else {
 		bombIndex := bm.findIndexByBombID(bomb.BombID)
 		bm.removeBomb(bombIndex)
-		bm.BombsAlives--
 
 		explosion := newExplosion()
-
 		bm.Explosions = append(bm.Explosions, explosion)
 	}
 
@@ -83,7 +82,7 @@ func (bm *BombManager) removeBomb(i int) {
 }
 
 func (bm *BombManager) renderExplosions() {
-	fmt.Println(bm.Explosions)
+
 }
 
 func (bm *BombManager) ManageBombs() {
