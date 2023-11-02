@@ -2,6 +2,7 @@ package player
 
 import (
 	"fmt"
+	"super-bomberman4/src/core/scenario"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
@@ -62,7 +63,7 @@ func NewPlayer(number int) *Player {
 		sprite:          0,
 		PosX:            0.0,
 		PosY:            0.0,
-		direction:       3,
+		direction:       2,
 		isPlayerMoving:  false,
 		BombsSummoned:   0,
 	}
@@ -84,6 +85,12 @@ func (p *Player) RenderPlayer() {
 	)
 
 	p.isPlayerMoving = false
+}
+
+// Set o spawn point do jogador
+func (p *Player) SetSpawnPoint(x, y float32) {
+	p.PosX = x
+	p.PosY = y
 }
 
 // função que inicia o jogador
@@ -124,6 +131,7 @@ func (p *Player) HandlePlayerInputs() {
 	p.ackPlayerMotion()
 }
 
+// Retorna a hitbox dos pés do jogador
 func (p Player) GetPlayerFeetHitbox() rl.Rectangle {
 
 	return rl.NewRectangle(
@@ -136,30 +144,60 @@ func (p Player) GetPlayerFeetHitbox() rl.Rectangle {
 
 func (p *Player) moveUpwards() {
 	newCharacterPosY := p.PosY - p.PlayerSpeed
-	p.PosY = newCharacterPosY
-	p.direction = 0
-	p.isPlayerMoving = true
+	p.moveCharacter(p.PosX, newCharacterPosY, 0)
 }
 
 func (p *Player) moveRight() {
 	newCharacterPosX := p.PosX + p.PlayerSpeed
-	p.PosX = newCharacterPosX
-	p.direction = 1
-	p.isPlayerMoving = true
+	p.moveCharacter(newCharacterPosX, p.PosY, 1)
 }
 
 func (p *Player) moveBackwards() {
 	newCharacterPosY := p.PosY + p.PlayerSpeed
-	p.PosY = newCharacterPosY
-	p.direction = 2
-	p.isPlayerMoving = true
+	p.moveCharacter(p.PosX, newCharacterPosY, 2)
 }
 
 func (p *Player) moveLeft() {
 	newCharacterPosX := p.PosX - p.PlayerSpeed
-	p.PosX = newCharacterPosX
-	p.direction = 3
-	p.isPlayerMoving = true
+	p.moveCharacter(newCharacterPosX, p.PosY, 3)
+}
+
+func (p *Player) moveCharacter(posX, posY float32, direction int) {
+	newPlayerPosX := posX - p.PosX
+	newPlayerPosY := posY - p.PosY
+
+	if !p.WillPlayerColide(newPlayerPosX, newPlayerPosY) {
+		p.PosX = float32(posX)
+		p.PosY = float32(posY)
+		p.isPlayerMoving = true
+		p.direction = direction
+	}
+}
+
+// Verifica se o usuario vai colidir com algum obstaculo.
+func (p *Player) WillPlayerColide(newPlayerPosX, newPlayerPosY float32) bool {
+	feet := p.GetPlayerFeetHitbox()
+
+	x := feet.X
+	y := feet.Y
+
+	x += newPlayerPosX
+	y += newPlayerPosY
+
+	for _, border := range scenario.GetScenarioBoundaries() {
+		if checkPlayerColision(x, y, border) {
+			return true
+		}
+	}
+
+	return false
+}
+
+// Verifica colisão do player
+func checkPlayerColision(x, y float32, wall rl.Rectangle) bool {
+	playerHitbox := rl.NewRectangle(x, y, 50, 20)
+
+	return rl.CheckCollisionRecs(playerHitbox, wall)
 }
 
 // Faz a atualização dos parametros de tempo e sprite para atualizar o jogador.

@@ -54,7 +54,7 @@ var (
 		{X: 225.6, Y: 491.52, Width: 75.2, Height: 61.44},
 		{X: 376, Y: 491.52, Width: 75.2, Height: 61.44},
 		{X: 827, Y: 491.52, Width: 75.2, Height: 61.44},
-		{X: 977.6, Y: 225.6, Width: 75.2, Height: 61.44},
+		{X: 977.6, Y: 491.52, Width: 75.2, Height: 61.44},
 		{X: 225.6, Y: 614.4, Width: 75.2, Height: 61.44},
 		{X: 376, Y: 614.4, Width: 75.2, Height: 61.44},
 		{X: 827.2, Y: 614.4, Width: 75.2, Height: 61.44},

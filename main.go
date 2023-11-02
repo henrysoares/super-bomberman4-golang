@@ -31,6 +31,8 @@ func initGame() {
 	player1 = player.NewPlayer(1)
 	player1.InitPlayer()
 
+	player1.SetSpawnPoint(150, 0)
+
 	bombManager = bomb.NewBombManager(player1)
 }
 
